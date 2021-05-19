@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Veryy simple HTTP server in python (Updated for Python 3.7)
+Very simple HTTP server in python (Updated for Python 3.7)
 
 Usage:
 
