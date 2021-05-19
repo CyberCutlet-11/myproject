@@ -1,0 +1,39 @@
+nohup python3 dummy-web-server.py &
+sleep 10
+
+curl -s -o /dev/null http://localhost:8000
+if [ $? -eq 0 ]
+then
+echo "GET OK"
+else
+echo "GET FAIL"
+GET="FAIL"
+fi
+
+curl -I -s -o /dev/null http://localhost:8000
+if [ $? -eq 0 ]
+then
+echo "HEAD OK"
+else
+echo "HEAD FAIL"
+HEAD="FAIL"
+fi
+
+curl -d "foo=bar&bin=baz" -s -o /dev/null http://localhost:8000
+if [ $? -eq 0 ]
+then
+echo "POST OK"
+else
+echo "POST FAIL"
+POST="FAIL"
+fi
+
+if [ "$GET" != "FAIL" ] && [ "$HEAD" != "FAIL" ] && [ "$POST" != "FAIL" ]
+then
+echo "Everything is OK! Starting docker container."
+pkill python3
+else
+echo "Something got wrong. Check your code ¯\_(ツ)_/¯"
+pkill python3
+exit 1
+fi

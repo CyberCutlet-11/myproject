@@ -1,0 +1,11 @@
+docker build -t nginx/custom .
+docker run -d -p 80:80 --name myproject nginx/custom:latest nohup python3 dummy-web-server.py
+docker exec --tty myproject service nginx start
+
+docker ps | grep 'myproject' >/dev/null
+if [ $? -eq 0 ]
+then
+echo "Deployment complete!"
+else
+echo "Deployment FAILED!"
+fi

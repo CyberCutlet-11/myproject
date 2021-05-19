@@ -1,0 +1,95 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.7.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@github.com:CyberCutlet-11/myproject.git</url>
+        <credentialsId>d38e286f-c981-4605-83f8-e81e5c511a21</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/main</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="empty-list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>* * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>nohup python3 dummy-web-server.py &amp;
+sleep 10
+
+curl -s -o /dev/null http://localhost:8000
+if [ $? -eq 0 ]
+then
+echo &quot;GET OK&quot;
+else
+echo &quot;GET FAIL&quot;
+GET=&quot;FAIL&quot;
+fi
+
+curl -I -s -o /dev/null http://localhost:8000
+if [ $? -eq 0 ]
+then
+echo &quot;HEAD OK&quot;
+else
+echo &quot;HEAD FAIL&quot;
+HEAD=&quot;FAIL&quot;
+fi
+
+curl -d &quot;foo=bar&amp;bin=baz&quot; -s -o /dev/null http://localhost:8000
+if [ $? -eq 0 ]
+then
+echo &quot;POST OK&quot;
+else
+echo &quot;POST FAIL&quot;
+POST=&quot;FAIL&quot;
+fi
+
+if [ &quot;$GET&quot; != &quot;FAIL&quot; ] &amp;&amp; [ &quot;$HEAD&quot; != &quot;FAIL&quot; ] &amp;&amp; [ &quot;$POST&quot; != &quot;FAIL&quot; ]
+then
+echo &quot;Everything is OK! Starting docker container.&quot;
+pkill python3
+else
+echo &quot;Something got wrong. Check your code ¯\_(ツ)_/¯&quot;
+pkill python3
+exit 1
+fi</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>docker build -t nginx/custom .
+docker run -d -p 80:80 --name myproject nginx/custom:latest nohup python3 dummy-web-server.py
+docker exec --tty myproject service nginx start
+
+docker ps | grep &apos;myproject&apos; &gt;/dev/null
+if [ $? -eq 0 ]
+then
+echo &quot;Deployment complete!&quot;
+else
+echo &quot;Deployment FAILED!&quot;
+fi</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
