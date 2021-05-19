@@ -1,0 +1,1 @@
+docker run -d -p 80:80 nginx/custom:latest nohup python3 dummy-web-server.py && docker exec -it nginx/custom:latest service nginx start
